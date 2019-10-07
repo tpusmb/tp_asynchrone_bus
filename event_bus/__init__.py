@@ -4,3 +4,4 @@
 from.Event import Event
 from .EventBus import EventBus
 from .Process import Process
+from .Lamport import Lamport
