@@ -21,6 +21,7 @@ class EventBus(Thread):
         self.setName("EventBus")
         self.start()
 
+    @staticmethod
     def getInstance():
         if not EventBus.singleton:
             EventBus()
