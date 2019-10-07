@@ -1,10 +1,10 @@
 class Event:
     def __init__(self, data, topic="default"):
-        self.data=data
-        self.topic=topic
+        self.data = data
+        self.topic = topic
 
-    def getData(self):
+    def get_data(self):
         return self.data
 
-    def getTopic(self):
+    def get_topic(self):
         return self.topic

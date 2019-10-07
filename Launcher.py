@@ -4,7 +4,7 @@ from event_bus import EventBus
 
 if __name__ == '__main__':
 
-    bus = EventBus.getInstance()
+    bus = EventBus.get_instance()
 
     p1 = Process("P1")
     p2 = Process("P2")

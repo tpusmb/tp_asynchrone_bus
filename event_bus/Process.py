@@ -14,7 +14,7 @@ class Process(Thread):
 
         self.setName(name)
 
-        self.bus = EventBus.getInstance()
+        self.bus = EventBus.get_instance()
         self.bus.register(self, 'Bidule')
         if self.getName() == "P3":
             self.bus.register(self, 'Machin')
@@ -26,8 +26,8 @@ class Process(Thread):
         if not isinstance(event, Event):
             print(self.getName() + ' Invalid object type is passed.')
             return
-        topic = event.getTopic()
-        data = event.getData()
+        topic = event.get_topic()
+        data = event.get_data()
         print(self.getName() + ' Processes event from TOPIC: ' + topic + ' with DATA: ' + data)
 
     def run(self):
@@ -38,11 +38,11 @@ class Process(Thread):
 
             b1 = Event(topic='Bidule', data="ga")
             b2 = Event(topic='Machin', data="bu")
-            print(self.getName() + " send: " + b1.getData())
+            print(self.getName() + " send: " + b1.get_data())
             self.bus.post(b1)
             if self.getName() == "P2":
                 self.bus.post(b2)
-                print(self.getName() + " send: " + b2.getData())
+                print(self.getName() + " send: " + b2.get_data())
 
             loop += 1
         print(self.getName() + " stopped")

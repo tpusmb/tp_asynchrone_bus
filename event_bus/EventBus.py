@@ -22,7 +22,7 @@ class EventBus(Thread):
         self.start()
 
     @staticmethod
-    def getInstance():
+    def get_instance():
         if not EventBus.singleton:
             EventBus()
         return EventBus.singleton
@@ -34,7 +34,7 @@ class EventBus(Thread):
             self.topicsListeners[topic] = [listener]
 
     def post(self, event):
-        if event.getTopic() in self.topicsListeners.keys():
+        if event.get_topic() in self.topicsListeners.keys():
             # lock SC
             self.events2ProcessCS.acquire()
             self.events2Process.append(event)
@@ -50,12 +50,12 @@ class EventBus(Thread):
             self.newEvent.acquire()
             # lock SC
             self.events2ProcessCS.acquire()
-            toProcess = self.events2Process[:]
+            to_process = self.events2Process[:]
             self.events2Process = []
             self.events2ProcessCS.release()
             # unlock SC
-            for event in toProcess:
-                for listener in self.topicsListeners[event.getTopic()]:
+            for event in to_process:
+                for listener in self.topicsListeners[event.get_topic()]:
                     listener.process(event)
 
         print(self.getName() + " stopped")
