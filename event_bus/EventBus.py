@@ -1,13 +1,14 @@
 from threading import Lock, Thread, Semaphore
 
-class EventBus(Thread): 
-    singleton = None  
-   
-    def __new__(cls, *args, **kwargs):  
-        if not cls.singleton:  
+
+class EventBus(Thread):
+    singleton = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls.singleton:
             cls.singleton = object.__new__(EventBus)
-        return cls.singleton  
-   
+        return cls.singleton
+
     def __init__(self):
         Thread.__init__(self)
 
@@ -24,20 +25,20 @@ class EventBus(Thread):
         if not EventBus.singleton:
             EventBus()
         return EventBus.singleton
-    
+
     def register(self, listener, topic="default"):
         if topic in self.topicsListeners.keys():
             self.topicsListeners[topic].append(listener)
         else:
             self.topicsListeners[topic] = [listener]
-            
+
     def post(self, event):
         if event.getTopic() in self.topicsListeners.keys():
-            #lock SC
+            # lock SC
             self.events2ProcessCS.acquire()
             self.events2Process.append(event)
             self.events2ProcessCS.release()
-            #unlock SC
+            # unlock SC
             try:
                 self.newEvent.release()
             except:
@@ -46,14 +47,14 @@ class EventBus(Thread):
     def run(self):
         while self.alive:
             self.newEvent.acquire()
-            #lock SC
+            # lock SC
             self.events2ProcessCS.acquire()
-            toProcess =self.events2Process[:]
+            toProcess = self.events2Process[:]
             self.events2Process = []
             self.events2ProcessCS.release()
-            #unlock SC
+            # unlock SC
             for event in toProcess:
-                for listener in  self.topicsListeners[event.getTopic()]:
+                for listener in self.topicsListeners[event.getTopic()]:
                     listener.process(event)
 
         print(self.getName() + " stopped")

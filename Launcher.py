@@ -1,6 +1,6 @@
 from time import sleep
-from Process import Process
-from EventBus import EventBus
+from event_bus import Process
+from event_bus import EventBus
 
 if __name__ == '__main__':
 

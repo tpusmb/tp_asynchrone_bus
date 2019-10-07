@@ -1,4 +1,4 @@
-class Event():
+class Event:
     def __init__(self, data, topic="default"):
         self.data=data
         self.topic=topic
