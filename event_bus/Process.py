@@ -22,6 +22,7 @@ class Process(Thread):
         BroadcastEvent.subscribe_to_broadcast(self.bus, self)
 
         self.alive = True
+        self.token = False
         self.start()
 
     def post(self, event):
@@ -45,6 +46,9 @@ class Process(Thread):
         print(self.getName() + ' Processes event from TOPIC: ' + topic + ' | with DATA: ' + data +
               " | counter: {}".format(self.lamport.counter))
 
+        if data is "token":
+            self.token = True
+
     def run(self):
         loop = 0
         while self.alive:
@@ -55,8 +59,18 @@ class Process(Thread):
             if self.getName() == "P1":
                 self.send_message("bu", 'P2')
 
+            self.on_token()
+
             loop += 1
         print(self.getName() + " stopped")
+
+    def launch_token(self):
+        self.token = True
+
+    def on_token(self):
+        if self.token is True:
+            self.send_message("token", 'broadcast')
+            self.token = False
 
     def stop(self):
         self.alive = False

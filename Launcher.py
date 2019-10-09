@@ -1,17 +1,16 @@
 from time import sleep
-from event_bus import Process
-from event_bus import EventBus
+from event_bus.EventBus import EventBus
+from event_bus.ProcessManager import ProcessManager
 
 if __name__ == '__main__':
 
     bus = EventBus.get_instance()
 
-    p1 = Process("P1")
-    p2 = Process("P2")
+    process_manager = ProcessManager()
+    process_manager.add_process(2)
 
     sleep(3)
 
-    p1.stop()
-    p2.stop()
+    process_manager.stop_process()
 
     bus.stop()
