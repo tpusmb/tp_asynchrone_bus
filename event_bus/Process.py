@@ -16,9 +16,9 @@ class Process(Thread):
         self.setName(name)
         self.lamport = Lamport()
         self.bus = EventBus.get_instance()
-        self.bus.register(self, 'Bidule')
+        self.bus.register(self, 'broadcast')
         if self.getName() == "P1":
-            self.bus.register(self, 'Machin')
+            self.bus.register(self, 'P2')
 
         self.alive = True
         self.start()
@@ -44,12 +44,11 @@ class Process(Thread):
             print(self.getName() + " Loop: " + str(loop))
             sleep(1)
 
-            b1 = Event(topic='Bidule', data="ga")
-            b2 = Event(topic='Machin', data="bu")
-
-            # self.post(b1)
+            b1 = Event(topic='broadcast', data="ga")
+            self.post(b1)
             print(self.getName() + " send: " + b1.get_data() + " counter: {}".format(self.lamport.counter))
             if self.getName() == "P2":
+                b2 = Event(topic='p2', data="bu")
                 self.bus.post(b2)
                 print(self.getName() + " send: " + b2.get_data() + " counter: {}".format(self.lamport.counter))
 
