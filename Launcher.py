@@ -8,7 +8,7 @@ if __name__ == '__main__':
 
     process_manager = ProcessManager()
     # process_manager.add_process(3)
-    process_manager.add_dice_process(3)
+    process_manager.add_dice_process(2)
 
     sleep(6)
 

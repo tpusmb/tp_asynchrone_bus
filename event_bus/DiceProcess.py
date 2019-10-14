@@ -38,7 +38,9 @@ class DiceProcess(Thread):
     def send_message(self, message, topic):
         event = Event(topic=topic, data=message)
         self.post(event)
-        print(self.getName() + " send: {} | counter: {}".format(event.get_data(), self.lamport.counter))
+        print(self.getName() + " send DATA: {} | TOPIC: {} | counter: {}".format(event.get_data(),
+                                                                                 event.get_topic(),
+                                                                                 self.lamport.counter))
 
     def process(self, event):
         self.lamport.receive(event.counter)
@@ -48,9 +50,9 @@ class DiceProcess(Thread):
 
         topic = event.get_topic()
         data = event.get_data()
-        print(self.getName() + " Processes event from TOPIC: {}"
-                               " | with DATA: {}"
-                               " | counter: {}".format(topic, data, self.lamport.counter))
+        print(self.getName() + " receive DATA: {}"
+                               " | TOPIC: {}"
+                               " | counter: {}".format(data, topic, self.lamport.counter))
 
         if data is "token":
             self.token = True
@@ -69,16 +71,16 @@ class DiceProcess(Thread):
         self.dice_game()
         loop = 0
         while self.alive:
-            print(self.getName() + " Loop: " + str(loop))
+            print(self.getName() + " Loop: {} | Token: {}".format(loop, self.token))
             sleep(1)
             self.on_token()
-
             loop += 1
         print(self.getName() + " stopped")
 
     def dice_game(self):
         self.process_results = []
         self.dice = randint(1, 6)
+        print(self.getName() + " dice is: {}".format(self.dice))
         self.synchronize()
         self.send_message(self.dice, 'broadcast')
 
@@ -86,17 +88,19 @@ class DiceProcess(Thread):
         self.token = True
 
     def on_token(self):
+        if self.is_critical_section:
+            self.is_critical_section = False
+            self.write_winner()
+            self.send_message("run", "broadcast")
         if self.token and not self.is_critical_section:
             self.release()
 
     def request(self):
-        print(self.getName() + " request")
-        while self.token is not True and self.alive is True:
+        while self.token is False and self.alive:
+            print(self.getName() + " is waiting for the token...")
             sleep(0.1)
-        if self.token is True:
+        if self.alive:
             self.is_critical_section = True
-            self.write_winner()
-            self.send_message("run", "broadcast")
 
     def release(self):
         target = (int(self.getName()[1:]) % self.bus_size) + 1
@@ -117,13 +121,14 @@ class DiceProcess(Thread):
     def check_winner(self):
         higer_result = 0
         for i in range(0, len(self.process_results)):
-            print(self.getName() + " Comparison: {} & {}".format(higer_result, self.process_results[i]))
             if self.process_results[i] > higer_result:
                 higer_result = self.process_results[i]
         if self.dice >= higer_result:
+            print(self.getName() + " is the winner with: {}".format(self.dice))
             self.request()
 
     def write_winner(self):
+        print(self.getName() + " write")
         file = open("winner.txt", "a+")
         file.write(self.getName() + "\n")
         file.close()
