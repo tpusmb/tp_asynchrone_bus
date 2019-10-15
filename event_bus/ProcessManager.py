@@ -5,6 +5,7 @@ from __future__ import absolute_import
 import os
 import timeit
 import logging.handlers
+from time import sleep
 from event_bus.Process import Process
 from event_bus.DiceProcess import DiceProcess
 
@@ -39,6 +40,14 @@ class ProcessManager:
         for i in range(number_of_process):
             self.process_list.append(DiceProcess("P{}".format(i + 1), number_of_process))
         self.process_list[len(self.process_list) - 1].launch_token()
+
+    def wait_round(self, round_limit):
+        end = False
+        while not end:
+            sleep(0.2)
+            for process in self.process_list:
+                if process.get_round() > round_limit:
+                    end = True
 
     def stop_process(self):
         for process in self.process_list:
