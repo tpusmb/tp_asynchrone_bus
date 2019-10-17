@@ -29,26 +29,51 @@ FOLDER_ABSOLUTE_PATH = os.path.normpath(os.path.dirname(os.path.abspath(__file__
 class ProcessManager:
 
     def __init__(self):
+        """
+        Constructor of the class.
+        """
         self.process_list = []
 
     def add_process(self, number_of_process):
+        """
+        Create "number_of_process" process of the Process class and add them to the process list.
+        Give the token to the last created process.
+        :param number_of_process: (Integer) number of process that will be created
+        """
         for i in range(number_of_process):
             self.process_list.append(Process("P{}".format(i + 1), number_of_process))
         self.process_list[len(self.process_list) - 1].launch_token()
 
     def add_dice_process(self, number_of_process):
+        """
+        Create "number_of_process" process of the DiceProcess class and add them to the process list.
+        Give the token to the last created process.
+        :param number_of_process: (Integer) number of process that will be created
+        :return:
+        """
         for i in range(number_of_process):
             self.process_list.append(DiceProcess("P{}".format(i + 1), number_of_process))
         self.process_list[len(self.process_list) - 1].launch_token()
 
     def wait_round(self, round_limit):
+        """
+        Function that will wait until one of the DiceProcess in the process list has his round reach "round_limit".
+        :param round_limit: (Integer) The round number
+        """
         end = False
+        index = 0
         while not end:
             sleep(0.2)
-            for process in self.process_list:
-                if process.get_round() > round_limit:
+            while not end and index < len(self.process_list):
+                if self.process_list[index].get_round() > round_limit:
                     end = True
+                else:
+                    index += 1
+            index = 0
 
     def stop_process(self):
+        """
+        Stop all process in process list.
+        """
         for process in self.process_list:
             process.stop()

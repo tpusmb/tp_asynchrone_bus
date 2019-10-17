@@ -10,7 +10,13 @@ from random import randint
 
 
 class DiceProcess(Thread):
+
     def __init__(self, name, bus_size):
+        """
+        Constructor of the class.
+        :param name: (String) Name of the process.
+        :param bus_size: (Integer) Number of process in the bus.
+        """
         Thread.__init__(self)
 
         self.setName(name)
@@ -32,11 +38,20 @@ class DiceProcess(Thread):
         self.start()
 
     def post(self, event):
+        """
+        Post a message into the bus and update the Lamport clock.
+        :param event: (Event) Event that contains the topic and the message.
+        """
         self.lamport.send()
         event.counter = self.lamport.counter
         self.bus.post(event)
 
     def send_message(self, message, topic):
+        """
+        Creates an event and post it.
+        :param message: (String) Message to send.
+        :param topic: (String) Topic of the message.
+        """
         event = Event(topic=topic, data=message)
         self.post(event)
         print(self.getName() + " send DATA: {} | TOPIC: {} | counter: {}".format(event.get_data(),
@@ -44,6 +59,10 @@ class DiceProcess(Thread):
                                                                                  self.lamport.counter))
 
     def process(self, event):
+        """
+        Function to receive an event and handle his message.
+        :param event: (Event) Event that contains the topic and the message.
+        """
         self.lamport.receive(event.counter)
         if not isinstance(event, Event):
             print(self.getName() + ' Invalid object type is passed.')
@@ -63,11 +82,13 @@ class DiceProcess(Thread):
             self.dice_game()
         else:
             self.process_results.append(data)
-            # print(self.getName() + " process_result: {}".format(self.process_results))
             if len(self.process_results) == self.bus_size:
                 self.check_winner()
 
     def run(self):
+        """
+        Main loop of the process.
+        """
         sleep(1)
         self.dice_game()
         loop = 0
@@ -83,16 +104,25 @@ class DiceProcess(Thread):
         print(self.getName() + " stopped")
 
     def dice_game(self):
+        """
+        Set up the dice game.
+        """
         self.process_results = []
-        self.dice = randint(1, 60)
+        self.dice = randint(1, 100)
         self.round += 1
         print(self.getName() + " Round: {} | Dice: {}".format(self.round, self.dice))
         self.synchronize()
 
     def launch_token(self):
+        """
+        Give the token to this process.
+        """
         self.token = True
 
     def on_token(self):
+        """
+        Handle the token.
+        """
         if self.token:
             if self.is_critical_section:
                 self.is_critical_section = False
@@ -102,26 +132,44 @@ class DiceProcess(Thread):
                 self.release()
 
     def request(self):
+        """
+        Set this process critical section to True.
+        """
         self.is_critical_section = True
 
     def release(self):
+        """
+        Send the token to the next process.
+        """
         target = (int(self.getName()[1:]) % self.bus_size) + 1
         self.send_message("token", "P{}".format(target))
         self.token = False
 
     def synchronize(self):
+        """
+        Send a message to every process.
+        """
         self.send_message("synchronization", 'broadcast')
 
     def on_synchronize(self):
+        """
+       Check responses from other process to reset the synch_request_counter.
+        """
         if self.synch_request_counter == self.bus_size:
             self.send_message(self.dice, 'broadcast')
             self.synch_request_counter = 0
 
     def stop(self):
+        """
+        Stop the process.
+        """
         self.alive = False
         self.join()
 
     def check_winner(self):
+        """
+        Find out if the process has the higer dice score and ask for the token if so.
+        """
         higer_result = 0
         for i in range(0, len(self.process_results)):
             if self.process_results[i] > higer_result:
@@ -131,11 +179,18 @@ class DiceProcess(Thread):
             self.request()
 
     def write_winner(self):
+        """
+        Write in a file the current round number and the process's name with his score.
+        """
         print(self.getName() + " write")
         file = open("winner.txt", "a+")
         file.write("Round: {} Winner: {} Score: {}\n".format(self.round, self.getName(), self.dice))
         file.close()
 
     def get_round(self):
+        """
+        Get the current round of this process.
+        :return: (Integer) The current round of this process.
+        """
         return self.round
 
