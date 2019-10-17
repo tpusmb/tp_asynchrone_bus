@@ -26,7 +26,6 @@ def dice_game_run():
     print("\n -> Dice (1 to 100)\n")
     process_manager.add_dice_process(NB_PROCESS)
     process_manager.wait_round(5)
-    print("\n -> Please check out the winner.txt file!\n")
 
 
 if __name__ == '__main__':
@@ -42,5 +41,3 @@ if __name__ == '__main__':
 
     process_manager.stop_process()
     bus.stop()
-
-
