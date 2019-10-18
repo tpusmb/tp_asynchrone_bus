@@ -109,9 +109,9 @@ class Process(Thread):
         """
         if self.token:
             if self.is_critical_section:
-                self.is_critical_section = False
-            else:
                 self.release()
+            else:
+                self.send_token()
 
     def request(self):
         """
@@ -120,6 +120,13 @@ class Process(Thread):
         self.is_critical_section = True
 
     def release(self):
+        """
+        Quit the critical section and send the token to the next process
+        """
+        self.is_critical_section = False
+        self.send_token()
+
+    def send_token(self):
         """
         Send the token to the next process.
         """

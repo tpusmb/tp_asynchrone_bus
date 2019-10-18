@@ -125,11 +125,11 @@ class DiceProcess(Thread):
         """
         if self.token:
             if self.is_critical_section:
-                self.is_critical_section = False
+                self.release()
                 self.write_winner()
                 self.send_message("run", "broadcast")
             else:
-                self.release()
+                self.send_token()
 
     def request(self):
         """
@@ -138,6 +138,13 @@ class DiceProcess(Thread):
         self.is_critical_section = True
 
     def release(self):
+        """
+        Quit the critical section and send the token to the next process
+        """
+        self.is_critical_section = False
+        self.send_token()
+
+    def send_token(self):
         """
         Send the token to the next process.
         """

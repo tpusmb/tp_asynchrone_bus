@@ -18,7 +18,7 @@ Prepare your virtualenv:
 
     virtualenv -p python3 venv
     . venv/bin/activate
-    pip install -r requirements.txt   
+    pip install -r requirements.txt
 
 If you want to exit your virtualenv:
 
